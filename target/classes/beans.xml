@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+  <!--<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">-->
+      <!--&lt;!&ndash;负责国际化支持&ndash;&gt;-->
+      <!--<property name="basename">-->
+          <!--&lt;!&ndash;定义文件名为message&ndash;&gt;-->
+          <!--<value>messages</value>-->
+      <!--</property>-->
+  <!--</bean>-->
+    <!--&lt;!&ndash;方法1&ndash;&gt;-->
+   <!--&lt;!&ndash;开启注解功能&ndash;&gt;-->
+    <!--<context:annotation-config ></context:annotation-config>-->
+    <!--<bean id="userDaoImpl" class="dao.impl.UserDaoImpl"></bean>-->
+
+    <!--&lt;!&ndash;方法2&ndash;&gt;-->
+    <!--&lt;!&ndash;扫描包下的注解，则不需要注册bean&ndash;&gt;-->
+    <!--<context:component-scan base-package="java"/>-->
+
+<!--<context:component-scan base-package="java"/>-->
+    <bean id="timeBook" class="TimeBook"/>
+    <bean id="logger" class="logger.CarLogger"/>
+    <bean id="log" class="logger.LogProxy" />
+    <bean id="logAround" class="logger.LogAround"/>
+    <bean id="car" class="vo.Car"/>
+    <!--<bean id="settersAndAbsquatulatePointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut">-->
+        <!--<property name="patterns">-->
+            <!--&lt;!&ndash;设置切入点&ndash;&gt;-->
+            <!--<list>-->
+                <!--<value>.*save.*</value>-->
+                <!--<value>.*do.*</value>-->
+                <!--&lt;!&ndash;以save开头的方法为切入点&ndash;&gt;-->
+                <!--&lt;!&ndash;以do开头的方法为切入点&ndash;&gt;-->
+
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
+  <!--用ProxyFactoryBean 创建AOP代理-->
+    <!--proxyFactoryBean代理目标类中的所有方法-->
+    <!--<bean id="logProxy" class="org.springframework.aop.framework.ProxyFactoryBean">-->
+        <!--&lt;!&ndash;代理接口&ndash;&gt;-->
+        <!--<property name="proxyInterfaces" >-->
+            <!--<value>dao.impl.TimeBookInterface</value>-->
+        <!--</property>-->
+        <!--&lt;!&ndash;Advice&ndash;&gt;-->
+        <!--<property name="target">-->
+            <!--<ref bean="timeBook"/>-->
+        <!--</property>-->
+        <!--&lt;!&ndash;目标类&ndash;&gt;-->
+        <!--<property name="interceptorNames">-->
+            <!--<list>-->
+                <!--<value>log</value>-->
+            <!--</list>-->
+        <!--</property>-->
+
+    <!--</bean>-->
+     <!--ProxyFactoryBean代理目标类的指定方法-->
+    <!--目标类的制定方法-->
+    <!--<bean id="logAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">-->
+        <!--<property name="advice">-->
+            <!--<ref bean="log" />-->
+        <!--</property>-->
+        <!--&lt;!&ndash;指定要代理的方法&ndash;&gt;-->
+        <!--<property name="patterns">-->
+            <!--<value>.*doAuditing.*</value>-->
+        <!--</property>-->
+    <!--</bean>-->
+    <!--设定代理类-->
+    <!--<bean id="logProxy1" class="org.springframework.aop.framework.ProxyFactoryBean">-->
+        <!--&lt;!&ndash;接口&ndash;&gt;-->
+        <!--<property name="proxyInterfaces">-->
+            <!--<value>dao.impl.TimeBookInterface</value>-->
+        <!--</property>-->
+        <!--&lt;!&ndash;advice&ndash;&gt;-->
+        <!--<property name="target">-->
+            <!--<ref bean="timeBook"/>-->
+        <!--</property>-->
+        <!--&lt;!&ndash;代理 advisor&ndash;&gt;-->
+        <!--<property name="interceptorNames">-->
+            <!--<list>-->
+                <!--<value>logAdvisor</value>-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+    <!--利用Interceptin Around 通知-->
+
+    <bean id="logAroundProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+        <!--接口-->
+        <property name="proxyInterfaces">
+            <value>dao.impl.TimeBookInterface</value>
+        </property>
+        <!--advise-->
+        <property name="target">
+            <ref bean="timeBook"/>
+        </property>
+        <!--advisor-->
+        <property name="interceptorNames">
+            <list>
+                <value>logAround</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="finance" class="dao.FinanceImplements"/>
+    <bean id="logAroundProxy1" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <!--接口-->
+        <property name="proxyInterfaces">
+            <value>dao.impl.FinanceInterface</value>
+        </property>
+
+        <property name="target">
+            <ref bean="finance" />
+        </property>
+        <!--advisor-->
+        <property name="interceptorNames">
+            <value>logAround</value>
+        </property>
+    </bean>
+    <!--before通知-->
+    <!--设置类中指定的方法-->
+    <bean id="logBefore" class="logger.LogBefore"/>
+    <bean id="logBeforeAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="advice">
+            <ref bean="logBefore"/>
+        </property>
+        <!--指定类的方法-->
+        <property name="patterns">
+            <value>.*doAuditing.*</value>
+        </property>
+    </bean>
+    <bean id="logBeforeProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <value>dao.impl.TimeBookInterface</value>
+        </property>
+        <!--目标类-->
+        <property name="target">
+            <ref bean="timeBook"/>
+        </property>
+        <property name="interceptorNames">
+            <value>logBeforeAdvisor</value>
+        </property>
+
+    </bean>
+    <!--After returning-->
+    <bean id="logAfter" class="logger.LogAfter"/>
+    <bean id="logAfterAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="advice">
+            <ref bean="logAfter"/>
+        </property>
+        <property name="patterns">
+            <value>.*doAuditing.*</value>
+        </property>
+    </bean>
+    <bean id="logAfterProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <value>dao.impl.TimeBookInterface</value>
+        </property>
+        <property name="target">
+            <ref bean="timeBook"/>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>logAfterAdvisor</value>
+            </list>
+        </property>
+    </bean>
+
+
+
+
+
+    <!--<aop:config>-->
+        <!--<aop:aspect ref="logger">-->
+            <!--<aop:pointcut expression="execution(* vo.Car.go(..))" id="go"/>-->
+            <!--<aop:before pointcut-ref="go" method="beforRun"/>-->
+            <!--<aop:after  pointcut-ref="go" method="afterRun"/>-->
+        <!--</aop:aspect>-->
+    <!--</aop:config>-->
+</beans>
