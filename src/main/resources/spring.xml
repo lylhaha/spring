@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--设定DataSource-->
+    <!--1.DriverManagerDataSource Spring 自带-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <!--数据库类型-->
+            <value></value>
+        </property>
+        <!--设定URL-->
+        <property name="url">
+            <value></value>
+        </property>
+        <!--设定用户-->
+        <property name="username">
+            <value>lyl</value>
+        </property>
+        <property name="password">
+            <value>11111</value>
+        </property>
+    </bean>
+    <!--2.DBCP 要引jar-->
+    <bean id="dataSourceDBCP" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName">
+            <value></value>
+        </property>
+        <property name="url">
+            <value></value>
+        </property>
+        <property name="username">
+            <value>lyl</value>
+        </property>
+        <property name="password">
+            <value>1111</value>
+        </property>
+
+    </bean>
+
+
+    <!--设定transactinManager-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+    </bean>
+    <!--Dao-->
+
+    <bean id="helloDAo" class="dao.HelloDao">
+        <property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+    </bean>
+    <bean id="helloDaoMajor" class="dao.HelloDaoMajor"/>
+
+    <!--声明式事务处理-->
+    <!--方法1：-->
+    <bean id="helloDaoMajorProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref bean="helloDaoMajor"/>
+        </property>
+        <!--对create()方法进行事务管理，新建事务管理-->
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUITED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--方法2：-->
+    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <!--新建事务-->
+        <property name="transactionAttributes">
+            <value>
+                dao.HelloDaoMajor.create*=PROPAGATION_REQUITED
+            </value>
+        </property>
+    </bean>
+    <bean id="helloDaoMajorProxyA" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>transactionInterceptor,helloDaoMajor</value>
+        </property>
+    </bean>
+
+
+</beans>
+
