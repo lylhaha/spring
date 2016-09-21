@@ -93,6 +93,28 @@
         </property>
     </bean>
 
+    <!--JdbcTemplate配置-->
+      <!--1、DataSource-->
+      <!--2.tramscationManager-->
+      <!--3.jdbcTemplate -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+    </bean>
+    <bean id="helloDAOJdbc" class="dao.HelloDAOJdbcTemplate">
+        <property name="jdbcTemplate">
+            <ref bean="jdbcTemplate"/>
+        </property>
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="sql">
+            <value></value>
+        </property>
+
+    </bean>
+
 
 </beans>
 
